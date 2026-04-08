@@ -8,36 +8,35 @@ const bookingsRouter = require('./routes/bookings.js');
 
 const app = express();
 
-// ✅ Allowed origins
+// ✅ Allowed origins (STRICT + SAFE)
 const allowedOrigins = [
   'https://planmymovie.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
 ];
 
-// ✅ CORS configuration (FINAL FIX)
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      console.warn(`⚠️ CORS blocked for origin: ${origin}`);
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
+// ✅ CORS (SIMPLIFIED + RELIABLE)
+app.use(cors({
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
-};
+}));
 
-// ✅ Apply CORS (this already handles preflight internally)
-app.use(cors(corsOptions));
+// ✅ FORCE HANDLE PREFLIGHT (THIS FIXES YOUR ERROR)
+app.use((req, res, next) => {
+  if (req.method === 'OPTIONS') {
+    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    return res.sendStatus(200);
+  }
+  next();
+});
 
 // ✅ Body parser
 app.use(express.json());
 
-// ✅ Health route
+// ✅ Health check
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -49,14 +48,9 @@ app.get('/api/health', (req, res) => {
 // ✅ API routes
 app.use('/api', bookingsRouter);
 
-// ✅ Global error handler
+// ✅ Error handler
 app.use((err, req, res, next) => {
   console.error('🔥 Error:', err.message);
-
-  if (err.message === 'Not allowed by CORS') {
-    return res.status(403).json({ error: 'CORS blocked this request' });
-  }
-
   res.status(500).json({ error: err.message || 'Internal server error' });
 });
 
@@ -68,6 +62,7 @@ app.listen(PORT, '0.0.0.0', () => {
 
   const SELF_URL = process.env.RENDER_EXTERNAL_URL;
 
+  // ✅ Keep-alive (Render free tier fix)
   if (SELF_URL) {
     setInterval(async () => {
       try {
