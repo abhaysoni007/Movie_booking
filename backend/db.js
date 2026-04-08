@@ -1,21 +1,23 @@
+console.log('📦 Loading better-sqlite3...');
 const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
 
-
+console.log('📦 Initializing database connection...');
 // Initialize database
 const dbPath = path.join(__dirname, 'cinema.db');
 let db;
 
 try {
   db = new Database(dbPath);
-  console.log(`Database connected at: ${dbPath}`);
+  console.log(`✅ Database connected at: ${dbPath}`);
 } catch (error) {
-  console.error('CRITICAL: Failed to connect to database:', error.message);
-  process.exit(1); // Exit if DB connection fails
+  console.error('❌ CRITICAL: Failed to connect to database:', error.message);
+  process.exit(1); 
 }
 
 // Enable foreign keys
+console.log('⚙️ Enabling foreign keys...');
 db.pragma('foreign_keys = ON');
 
 // Create users table
@@ -55,6 +57,7 @@ db.exec(`
 `);
 
 // Seed initial data if tables are empty
+console.log('🌱 Checking if database needs seeding...');
 const showsCount = db.prepare('SELECT COUNT(*) as count FROM shows').get();
 if (showsCount.count === 0) {
   const insertShow = db.prepare(`
@@ -90,7 +93,10 @@ if (showsCount.count === 0) {
   const demoHash = bcrypt.hashSync('password123', 10);
   db.prepare('INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)')
     .run(demoUserId, 'Demo User', 'demo@example.com', demoHash);
-  console.log('Demo user created: demo@example.com / password123');
+  console.log('✅ Database seeded successfully');
+} else {
+  console.log('ℹ️ Database already contains data');
 }
 
+console.log('✅ DB initialization complete');
 module.exports = db;
