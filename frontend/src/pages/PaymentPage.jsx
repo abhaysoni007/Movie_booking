@@ -1,4 +1,5 @@
 import { useState, useContext } from 'react';
+import { apiFetch } from '../apiClient';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CreditCard, Lock, ChevronLeft } from 'lucide-react';
@@ -42,7 +43,7 @@ export default function PaymentPage() {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
-      const res = await fetch('http://localhost:5000/api/bookings', {
+      const res = await apiFetch('/api/bookings', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

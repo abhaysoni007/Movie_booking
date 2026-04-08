@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { apiFetch } from '../apiClient';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { AuthContext } from '../context/AuthContext';
@@ -12,7 +13,7 @@ export default function TicketView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:5000/api/bookings/me', {
+    apiFetch('/api/bookings/me', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())

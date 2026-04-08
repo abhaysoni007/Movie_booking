@@ -1,4 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
+import { apiFetch } from '../apiClient';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Trash2, Ticket, Calendar, Clock } from 'lucide-react';
@@ -22,7 +23,7 @@ export default function MyBookings() {
   }, [user, navigate, token]);
 
   const fetchBookings = () => {
-    fetch('http://localhost:5000/api/bookings/me', {
+    apiFetch('/api/bookings/me', {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -38,7 +39,7 @@ export default function MyBookings() {
     setCancelStatus({ id: bookingId, loading: true, error: null });
 
     try {
-      const res = await fetch(`http://localhost:5000/api/bookings/${bookingId}`, {
+      const res = await apiFetch(`/api/bookings/${bookingId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
       });
