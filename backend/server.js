@@ -6,54 +6,43 @@ const { router: authRouter } = require('./routes/auth.js');
 
 const app = express();
 
-// Middleware
-app.use(express.json());
-
-// Enhanced CORS Configuration
+// ✅ Allowed origins
 const allowedOrigins = [
-  'https://planmymovie.vercel.app',
-  'http://localhost:5173',
-  process.env.CLIENT_URL
-].filter(Boolean);
+  'https://planmymovie.vercel.app'
+];
 
+// ✅ Robust CORS config
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) !== -1 || origin.startsWith('http://localhost:')) {
+    // allow requests with no origin (like Postman, mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error('CORS not allowed'));
     }
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  optionsSuccessStatus: 200
+  allowedHeaders: ['Content-Type', 'Authorization']
 };
 
+// ✅ Apply CORS (this already handles preflight)
 app.use(cors(corsOptions));
 
-// Request Logging Middleware
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.get('origin')}`);
-  next();
-});
+// Body parser
+app.use(express.json());
 
-// Health check route
+// Health check
 app.get('/api/health', (req, res) => {
-  res.status(200).json({ status: 'OK', message: 'Server is running', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'OK', message: 'Server is running' });
 });
 
-// Mount routers
+// Routes
 app.use('/api/auth', authRouter);
 app.use('/api', bookingsRouter);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-const HOST = '0.0.0.0'; // Bind to all interfaces for Render/Cloud
-
-app.listen(PORT, HOST, () => {
-  console.log(`Server running on http://${HOST}:${PORT}`);
-  console.log('Allowed Origins:', allowedOrigins);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
 });
