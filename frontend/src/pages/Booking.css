@@ -1,0 +1,215 @@
+.booking-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  padding-top: 2rem;
+  padding-bottom: 4rem;
+}
+
+.seating-section {
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.screen-indicator {
+  width: 100%;
+  max-width: 500px;
+  margin: 2rem 0 4rem;
+  text-align: center;
+}
+
+.screen-curve {
+  height: 60px;
+  width: 100%;
+  border-top: 4px solid var(--accent-primary);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  box-shadow: 0 -20px 40px rgba(229, 9, 20, 0.2);
+  margin-bottom: 0.5rem;
+}
+
+.screen-indicator span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  letter-spacing: 0.2em;
+}
+
+.seat-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 1rem;
+  margin-bottom: 3rem;
+}
+
+.seat {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px 8px 4px 4px; /* look like a chair */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  position: relative;
+}
+
+.seat::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: 4px;
+  right: 4px;
+  height: 4px;
+  background: rgba(0,0,0,0.3);
+  border-radius: 2px;
+}
+
+.seat.standard { background-color: var(--seat-standard); color: white; }
+.seat.standard:hover:not(.booked) { background-color: var(--seat-standard-hover); transform: scale(1.1); }
+
+.seat.premium { background-color: var(--seat-premium); color: white; }
+.seat.premium:hover:not(.booked) { background-color: var(--seat-premium-hover); transform: scale(1.1); }
+
+.seat.vip { background-color: var(--seat-vip); color: white; }
+.seat.vip:hover:not(.booked) { background-color: var(--seat-vip-hover); transform: scale(1.1); }
+
+.seat.booked {
+  background-color: var(--seat-booked);
+  color: var(--text-secondary);
+  cursor: not-allowed;
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+.seat.selected {
+  background-color: var(--accent-primary) !important;
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.4);
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 1rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--glass-border);
+  width: 100%;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.legend-seat {
+  width: 20px;
+  height: 20px;
+  font-size: 0;
+  cursor: default;
+}
+.legend-seat:hover { transform: none !important; }
+
+/* Checkout Sidebar */
+.checkout-sidebar {
+  height: fit-content;
+  position: sticky;
+  top: 100px;
+  overflow: hidden;
+}
+
+.checkout-movie-info {
+  height: 180px;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+}
+
+.checkout-movie-overlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: linear-gradient(to top, var(--glass-bg), rgba(0,0,0,0.3));
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.checkout-movie-overlay h3 { font-size: 1.5rem; margin-bottom: 0.25rem; }
+.checkout-movie-overlay p { color: var(--text-secondary); font-size: 0.875rem; }
+
+.checkout-details {
+  padding: 1.5rem;
+}
+
+.checkout-details h4 {
+  margin-bottom: 1.5rem;
+  font-size: 1.125rem;
+  color: var(--text-secondary);
+}
+
+.empty-selection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-secondary);
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.selected-list {
+  list-style: none;
+  margin-bottom: 1.5rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.selected-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.checkout-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin: 1.5rem 0;
+  padding-top: 1.5rem;
+  border-top: 2px dashed var(--glass-border);
+}
+
+.checkout-btn {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.125rem;
+}
+
+.checkout-error {
+  background: rgba(229, 9, 20, 0.1);
+  color: var(--accent-primary);
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+@media (max-width: 968px) {
+  .booking-container { grid-template-columns: 1fr; }
+  .seat-grid { gap: 0.5rem; }
+  .seat { width: 36px; height: 36px; font-size: 0.75rem; }
+}
