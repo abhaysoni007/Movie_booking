@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db.js');
 const bookingsRouter = require('./routes/bookings.js');
+const { router: authRouter } = require('./routes/auth.js');
 const { asyncHandler } = require('./utils.js');
 
 const app = express();
@@ -82,6 +83,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // ✅ API routes
+app.use('/api/auth', authRouter);
 app.use('/api', bookingsRouter);
 
 // ✅ 5️⃣ GLOBAL ERROR HANDLER (CORS-AWARE)
