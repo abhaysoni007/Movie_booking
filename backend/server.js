@@ -15,10 +15,9 @@ const allowedOrigins = [
   'http://localhost:5174',
 ];
 
-// ✅ CORS configuration (fixed)
+// ✅ CORS configuration (FINAL FIX)
 const corsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (like Postman / server-to-server)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -32,16 +31,13 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
-// ✅ VERY IMPORTANT: handle preflight correctly
-app.options('*', cors(corsOptions));
-
-// ✅ Apply CORS middleware
+// ✅ Apply CORS (this already handles preflight internally)
 app.use(cors(corsOptions));
 
 // ✅ Body parser
 app.use(express.json());
 
-// ✅ Health route (for testing + Render)
+// ✅ Health route
 app.get('/api/health', (req, res) => {
   res.status(200).json({
     status: 'OK',
@@ -70,7 +66,6 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔥 SERVER READY ON PORT ${PORT}`);
 
-  // ✅ Keep-alive for Render free tier
   const SELF_URL = process.env.RENDER_EXTERNAL_URL;
 
   if (SELF_URL) {
