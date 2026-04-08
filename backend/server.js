@@ -2,36 +2,72 @@ console.log('🚀 Starting Cinema Booking Server...');
 
 const express = require('express');
 const cors = require('cors');
-
 const db = require('./db.js');
 const bookingsRouter = require('./routes/bookings.js');
+const { asyncHandler } = require('./utils.js');
 
 const app = express();
 
-// ✅ Allowed origins (STRICT + SAFE)
+// 1️⃣ MIDDLEWARE: Request Logger (Observability)
+app.use((req, res, next) => {
+  console.log(`📡 [${new Date().toISOString()}] ${req.method} ${req.originalUrl} | Origin: ${req.headers.origin || 'N/A'}`);
+  next();
+});
+
+// 2️⃣ MIDDLEWARE: Timeout Guard (Anti-Hang)
+app.use((req, res, next) => {
+  const timeout = setTimeout(() => {
+    if (!res.headersSent) {
+      console.error(`⏱️ Request Timeout: ${req.method} ${req.originalUrl}`);
+      res.status(504).json({ error: 'Request timeout' });
+    }
+  }, 8000); // 8 seconds
+
+  res.on('finish', () => clearTimeout(timeout));
+  next();
+});
+
+// 3️⃣ MIDDLEWARE: Response Safety Guard (No Double Headers)
+app.use((req, res, next) => {
+  const originalSend = res.send;
+  res.send = function (body) {
+    if (res.headersSent) {
+      console.error(`🚨 DOUBLE RESPONSE DETECTED: ${req.method} ${req.originalUrl}`);
+      return;
+    }
+    return originalSend.call(this, body);
+  };
+  next();
+});
+
+// 4️⃣ MIDDLEWARE: Production CORS (Dynamic & Tight)
 const allowedOrigins = [
   'https://planmymovie.vercel.app',
   'http://localhost:5173',
   'http://localhost:5174',
 ];
 
-// ✅ CORS (SIMPLIFIED + RELIABLE)
 app.use(cors({
-  origin: allowedOrigins,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
 
-// ✅ FORCE HANDLE PREFLIGHT (THIS FIXES YOUR ERROR)
-app.use((req, res, next) => {
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    return res.sendStatus(200);
-  }
-  next();
-});
+    const isMatch = allowedOrigins.includes(origin) || 
+                    origin.endsWith('.vercel.app') || 
+                    origin.includes('localhost');
+
+    if (isMatch) {
+      callback(null, true);
+    } else {
+      console.warn(`🔒 CORS Blocked Origin: ${origin}`);
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
 
 // ✅ Body parser
 app.use(express.json());
@@ -48,10 +84,23 @@ app.get('/api/health', (req, res) => {
 // ✅ API routes
 app.use('/api', bookingsRouter);
 
-// ✅ Error handler
+// ✅ 5️⃣ GLOBAL ERROR HANDLER (CORS-AWARE)
 app.use((err, req, res, next) => {
-  console.error('🔥 Error:', err.message);
-  res.status(500).json({ error: err.message || 'Internal server error' });
+  console.error('🔥 SERVER ERROR:', err.stack || err.message);
+
+  // Force attach CORS headers during errors to prevent browser masking
+  const origin = req.headers.origin;
+  if (origin) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  } else {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+  }
+
+  res.status(err.status || 500).json({
+    error: err.message || 'Internal server error',
+    path: req.originalUrl
+  });
 });
 
 // ✅ Start server

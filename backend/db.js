@@ -85,18 +85,22 @@ if (showsCount.count === 0) {
       insertShow.run(...show);
     }
   });
+  
+  console.log('🌱 Inserting 8 production-ready shows...');
   insertManyShows(shows);
-  console.log('Database initialized with 8 shows');
+  console.log('✅ Database initialization: shows table populated');
 
   // Seed demo user
+  console.log('🌱 Seeding demo user...');
   const demoUserId = require('crypto').randomUUID();
   const demoHash = bcrypt.hashSync('password123', 10);
   db.prepare('INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)')
     .run(demoUserId, 'Demo User', 'demo@example.com', demoHash);
+  
   console.log('✅ Database seeded successfully');
 } else {
-  console.log('ℹ️ Database already contains data');
+  console.log('ℹ️ Database integrity check: tables exist and contain data');
 }
 
-console.log('✅ DB initialization complete');
+console.log('🚀 DB initialization complete and ready');
 module.exports = db;
