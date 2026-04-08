@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const db = require('./db.js');
 const bookingsRouter = require('./routes/bookings.js');
+const { router: authRouter } = require('./routes/auth.js');
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.get('/api/health', (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRouter);
 app.use('/api', bookingsRouter);
 
 // Global error handler
