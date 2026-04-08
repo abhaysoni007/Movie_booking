@@ -2,7 +2,7 @@ import { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
-import { apiFetch } from '../apiClient';
+import { getAuthMe } from '../api';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -13,10 +13,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       localStorage.setItem('token', token);
       // Fetch user data
-      apiFetch('/api/auth/me', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-      .then(res => res.json())
+      getAuthMe(token)
       .then(data => {
         if (data.user) {
           setUser(data.user);

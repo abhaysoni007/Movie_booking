@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { apiFetch } from '../apiClient';
+import { getUserBookings } from '../api';
 import { useParams, Link } from 'react-router-dom';
 import { QRCodeSVG } from 'qrcode.react';
 import { AuthContext } from '../context/AuthContext';
@@ -13,10 +13,7 @@ export default function TicketView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch('/api/bookings/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
+    getUserBookings(token)
       .then(data => {
         const found = data.find(b => b.id === bookingId);
         setTicket(found);

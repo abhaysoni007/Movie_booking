@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../apiClient';
+import { getShows } from '../api';
 import { Link } from 'react-router-dom';
 import { Play } from 'lucide-react';
 import './Home.css';
@@ -9,8 +9,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    apiFetch('/api/shows')
-      .then(res => res.json())
+    getShows()
       .then(data => {
         setShows(data);
         setLoading(false);

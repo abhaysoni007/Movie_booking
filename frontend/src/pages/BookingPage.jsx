@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { apiFetch } from '../apiClient';
+import { getSeats } from '../api';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CreditCard, Info } from 'lucide-react';
@@ -23,8 +23,7 @@ export default function BookingPage() {
       return;
     }
 
-    apiFetch(`/api/shows/${showId}/seats`)
-      .then(res => res.json())
+    getSeats(showId)
       .then(data => {
         setShow(data.show);
         setSeats(data.seats);

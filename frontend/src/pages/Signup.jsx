@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { apiFetch } from '../apiClient';
+import { register } from '../api';
 import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import './AuthFields.css';
@@ -16,13 +16,7 @@ export default function Signup() {
     e.preventDefault();
     setError('');
     try {
-      const res = await apiFetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password })
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await register(name, email, password);
       
       login(data.token, data.user);
       navigate('/');

@@ -1,5 +1,5 @@
 import { useState, useContext } from 'react';
-import { apiFetch } from '../apiClient';
+import { createBooking } from '../api';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { CreditCard, Lock, ChevronLeft } from 'lucide-react';
@@ -43,20 +43,11 @@ export default function PaymentPage() {
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
-      const res = await apiFetch('/api/bookings', {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          show_id: parseInt(show.id),
-          seat_numbers: selectedSeats.map(s => s.seat_number)
-        })
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error);
+      const data = await createBooking(
+        parseInt(show.id),
+        selectedSeats.map(s => s.seat_number),
+        token
+      );
 
       // Success! Navigate to the first ticket
       navigate(`/ticket/${data.booking_ids[0]}`, { replace: true });

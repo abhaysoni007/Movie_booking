@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { apiFetch } from '../apiClient';
+import { getUserBookings, cancelBooking } from '../api';
 import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Trash2, Ticket, Calendar, Clock } from 'lucide-react';
@@ -23,10 +23,7 @@ export default function MyBookings() {
   }, [user, navigate, token]);
 
   const fetchBookings = () => {
-    apiFetch('/api/bookings/me', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => res.json())
+    getUserBookings(token)
       .then(data => {
         setBookings(data);
         setLoading(false);
@@ -39,13 +36,7 @@ export default function MyBookings() {
     setCancelStatus({ id: bookingId, loading: true, error: null });
 
     try {
-      const res = await apiFetch(`/api/bookings/${bookingId}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      const data = await res.json();
-      
-      if (!res.ok) throw new Error(data.error);
+      await cancelBooking(bookingId, token);
 
       // Remove booking from state dynamically
       setBookings(prev => prev.filter(b => b.id !== bookingId));
