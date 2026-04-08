@@ -5,7 +5,15 @@ const { v4: uuidv4 } = require('uuid');
 
 // Initialize database
 const dbPath = path.join(__dirname, 'cinema.db');
-const db = new Database(dbPath);
+let db;
+
+try {
+  db = new Database(dbPath);
+  console.log(`Database connected at: ${dbPath}`);
+} catch (error) {
+  console.error('CRITICAL: Failed to connect to database:', error.message);
+  process.exit(1); // Exit if DB connection fails
+}
 
 // Enable foreign keys
 db.pragma('foreign_keys = ON');
