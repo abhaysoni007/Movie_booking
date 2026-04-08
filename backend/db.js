@@ -1,7 +1,7 @@
 const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid');
+
 
 // Initialize database
 const dbPath = path.join(__dirname, 'cinema.db');
@@ -86,7 +86,7 @@ if (showsCount.count === 0) {
   console.log('Database initialized with 8 shows');
 
   // Seed demo user
-  const demoUserId = uuidv4();
+  const demoUserId = require('crypto').randomUUID();
   const demoHash = bcrypt.hashSync('password123', 10);
   db.prepare('INSERT INTO users (id, name, email, password_hash) VALUES (?, ?, ?, ?)')
     .run(demoUserId, 'Demo User', 'demo@example.com', demoHash);
